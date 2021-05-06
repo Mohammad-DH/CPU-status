@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>CPU status</title>
+  <link rel="stylesheet" href="index.css">
+</head>
+
+<body>
+  <div class="box">
+    <div class="section section1">
+
+      <svg>
+        <circle cx="100" cy="100" r="100"></circle>
+      </svg>
+
+      <span class="label1">CPU (%)</span>
+      <span id="cpu">-</span>
+
+    </div>
+
+    <div class="section section2">
+      <svg>
+        <circle cx="100" cy="100" r="100"></circle>
+      </svg>
+      <span class="label2">Used Mem (%)</span>
+      <span id="mem">-</span>
+    </div>
+
+    <div class="section section3">
+      <svg>
+        <circle cx="100" cy="100" r="100"></circle>
+      </svg>
+      <span class="label3">Left Mem (GB)</span>
+      <span id="left-mem">-</span>
+      <span>/</span>
+      <span id="total-mem"></span>
+    </div>
+
+  </div>
+
+
+  <script>
+    const electron = require('electron');
+    const ipcRenderer = electron.ipcRenderer;
+    let root = document.documentElement;
+    var mem;
+
+    ipcRenderer.on('cpu', (event, data) => {
+      document.getElementById('cpu').innerHTML = (data).toFixed(2);
+      root.style.setProperty('--offset1', 630 - (630 * data) / 100);
+    });
+    ipcRenderer.on('mem', (event, data) => {
+      mem = data.toFixed(2);
+      document.getElementById('mem').innerHTML = (100 - data).toFixed(2);
+      root.style.setProperty('--offset2', 630 - (630 * (100 - data)) / 100);
+    });
+    ipcRenderer.on('total-mem', (event, data) => {
+      let left = (data / 100) * (mem)
+      let per = (data / 100) * (left * 100)
+      document.getElementById('left-mem').innerHTML = left.toFixed(2);
+
+      root.style.setProperty('--offset3', 630 - (per * 630) / 100);
+      document.getElementById('total-mem').innerHTML = data.toFixed(1);
+    });
+  </script>
+</body>
+
+</html>
